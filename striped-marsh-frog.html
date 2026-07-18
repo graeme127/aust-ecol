@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="An evidence-checked species profile of the striped marsh frog, including identification, call, habitat, breeding and distribution.">
+<title>Striped Marsh Frog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1d2413; --muted:#55603f; --line:#e2e6d3;
+    --moss:#6d8a2f; --moss-dark:#3c4f16; --pond:#237878; --gold:#c9922f;
+    --paper:#f8faf1; --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:var(--serif);line-height:1.7;font-size:18px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:0 24px 96px}
+  .topic-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin:24px 0 12px;
+    font-family:var(--sans);font-size:.78rem}
+  .topic-nav a{color:var(--moss-dark);background:#fff;border:1px solid var(--line);border-radius:999px;
+    padding:7px 12px;text-decoration:none;box-shadow:0 3px 10px rgba(60,79,22,.05)}
+  .topic-nav a:hover{border-color:var(--moss);color:var(--pond)}
+  .topic-nav a[aria-current="page"]{background:var(--moss-dark);border-color:var(--moss-dark);color:#fff}
+
+  header.hero{position:relative;color:#f3f7e8;text-align:center;overflow:hidden;
+    min-height:540px;padding:0 20px 46px;
+    background:linear-gradient(160deg,#22381a,#3c5a24 60%,#237878);
+    display:flex;flex-direction:column;justify-content:flex-end}
+  .hero .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+  .hero .overlay{position:absolute;inset:0;z-index:1;
+    background:linear-gradient(180deg,rgba(12,26,6,.34) 0%,rgba(12,26,6,.1) 40%,rgba(12,26,6,.74) 100%)}
+  .hero .htext{position:relative;z-index:2}
+  figure.photo-fig{margin:34px 0}
+  figure.photo-fig img{width:100%;height:auto;border-radius:18px;display:block;
+    box-shadow:0 10px 34px rgba(60,79,22,.16)}
+  figure.photo-fig figcaption{font-family:var(--sans);font-size:.86rem;color:var(--muted);
+    margin:14px auto 0;max-width:620px;text-align:center}
+  .hero .tag{display:inline-block;font-family:var(--sans);font-size:.72rem;letter-spacing:3px;
+    text-transform:uppercase;font-weight:600;background:rgba(255,255,255,.16);
+    backdrop-filter:blur(3px);padding:7px 16px;border-radius:30px;border:1px solid rgba(255,255,255,.25)}
+  .hero h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.2rem,6vw,3.4rem);
+    margin:.35em 0 .1em;letter-spacing:-.5px;text-shadow:0 2px 24px rgba(10,30,0,.4)}
+  .hero .sci{font-style:italic;opacity:.95;font-size:1.2rem}
+
+  h2{font-family:var(--serif);font-weight:600;font-size:1.7rem;color:var(--moss-dark);
+    margin:2.6em 0 .4em;letter-spacing:-.3px;position:relative;padding-left:20px}
+  h2::before{content:"";position:absolute;left:0;top:.18em;bottom:.18em;width:5px;border-radius:4px;
+    background:linear-gradient(var(--moss),var(--pond))}
+  h3{font-family:var(--sans);font-weight:600;color:var(--pond);font-size:1.08rem;margin:1.6em 0 .2em}
+  p{margin:.75em 0}
+  .lead{font-size:1.28rem;line-height:1.6;color:var(--moss-dark);margin-top:2em}
+  .lead::first-letter{initial-letter:2;-webkit-initial-letter:2;font-weight:600;color:var(--moss);margin-right:10px}
+  strong{color:var(--moss-dark)}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin:34px 0}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;
+    box-shadow:0 6px 20px rgba(60,79,22,.06);transition:transform .2s,box-shadow .2s;text-align:center}
+  .card:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(60,79,22,.12)}
+  .card .n{font-family:var(--serif);font-weight:700;color:var(--moss);font-size:1.7rem;line-height:1}
+  .card .l{font-family:var(--sans);font-size:.74rem;text-transform:uppercase;letter-spacing:1.2px;
+    color:var(--muted);margin-top:8px}
+
+  .callout{position:relative;background:linear-gradient(135deg,#f1f6e5,#e7f1e2);
+    border:1px solid var(--line);border-left:5px solid var(--gold);padding:20px 24px;
+    border-radius:0 16px 16px 0;margin:30px 0;box-shadow:0 6px 18px rgba(60,79,22,.06);
+    display:flex;align-items:center;gap:18px}
+  .call-badge{flex:none;background:var(--gold);color:#fff;font-family:var(--sans);font-weight:700;
+    border-radius:12px;padding:10px 14px;letter-spacing:2px;font-size:.8rem;
+    box-shadow:0 4px 12px rgba(201,146,47,.35)}
+
+  .life{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:26px 0;
+    position:relative}
+  .life .step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 16px;
+    text-align:center;box-shadow:0 6px 18px rgba(60,79,22,.06)}
+  .life .step svg{margin-bottom:6px}
+  .life .step h4{margin:6px 0 3px;font-family:var(--sans);color:var(--moss-dark);font-size:1rem}
+  .life .step small{color:var(--muted);font-family:var(--sans);font-size:.82rem;line-height:1.4;display:block}
+  .life .arrow{align-self:center;color:var(--moss);font-size:1.6rem}
+
+  table{width:100%;border-collapse:separate;border-spacing:0;margin:24px 0;font-size:.98rem;
+    background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    box-shadow:0 6px 20px rgba(60,79,22,.06)}
+  th,td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child th,tr:last-child td{border-bottom:none}
+  th{width:34%;color:var(--moss-dark);font-family:var(--sans);font-weight:600;font-size:.82rem;
+    text-transform:uppercase;letter-spacing:.5px;background:#f3f7ea}
+
+  .sources{font-family:var(--sans);font-size:.86rem;background:#eff3e6;border-radius:16px;
+    padding:22px 26px;margin-top:52px;border:1px solid var(--line)}
+  .sources strong{font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--moss-dark)}
+  .sources ul{list-style:none;padding:0;margin:12px 0 0}
+  .sources a{color:var(--pond);text-decoration:none;word-break:break-word}
+  .sources a:hover{text-decoration:underline}
+  .sources li{margin:.5em 0;padding-left:16px;position:relative}
+  .sources li::before{content:"›";position:absolute;left:0;color:var(--moss)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <img class="photo" alt="Striped marsh frog"
+       src="https://commons.wikimedia.org/wiki/Special:FilePath/Striped%20Marsh%20Frog,%20Limnodynastes%20peronii%20-%20Flickr%20-%20GregTheBusker.jpg?width=1500"
+       onerror="this.style.display='none'">
+  <div class="overlay"></div>
+  <div class="htext">
+    <div class="tag">Ecological Overview</div>
+    <h1>Striped Marsh Frog</h1>
+    <div class="sci">Limnodynastes peronii</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="topic-nav" aria-label="Ecology profiles">
+    <a href="index.html">All profiles</a>
+    <a href="striped-marsh-frog.html" aria-current="page">Striped marsh frog</a>
+    <a href="warrandyte-yarra-river.html">Warrandyte river</a>
+    <a href="white-mangroves-sydney.html">Sydney mangroves</a>
+  </nav>
+  <p class="lead">A familiar frog of eastern Australia, recognised by dark stripes and a repeated single <em>“tok”</em>. It often persists in urban ponds, wetlands and drains, but its adaptability does not mean those habitats are healthy for frogs generally.</p>
+
+  <div class="cards">
+    <div class="card"><div class="n">75 mm</div><div class="l">Maximum body length</div></div>
+    <div class="card"><div class="n">“tok”</div><div class="l">Repeated single-note call</div></div>
+    <div class="card"><div class="n">7–8 mo</div><div class="l">Tadpole to frog</div></div>
+    <div class="card"><div class="n">East coast</div><div class="l">QLD to northern TAS</div></div>
+  </div>
+
+  <h2>Appearance</h2>
+  <p>Adults reach about <strong>75 mm in body length</strong>. The brown back carries several dark longitudinal stripes; some individuals also have a pale cream or reddish stripe along the centre. A pale stripe runs from below the eye to the top of the forelimb. The belly is white, while breeding males have a pale yellow throat with brown mottling. The eyes have a horizontal pupil and gold iris, and the fingers and toes lack webbing and enlarged discs.</p>
+
+  <div class="callout"><span class="call-badge">CALL</span><div>A short, explosive <strong>“tok”, “whuck” or “pop”</strong>, repeated every few seconds. Males may call from vegetation or concealed sites by day and from the water’s surface at night. Calling can extend beyond the main breeding season in some regions.</div></div>
+
+  <h2>Life cycle</h2>
+  <figure class="photo-fig">
+    <img alt="Striped marsh frog tadpoles"
+         src="https://commons.wikimedia.org/wiki/Special:FilePath/Striped%20marsh%20frog%20tadpoles%20-%20day%202%20(3426481888).jpg?width=1200"
+         onerror="this.closest('figure').style.display='none'">
+    <figcaption>Striped marsh frog tadpoles &mdash; dark and slow-developing, they can take seven to eight months and reach up to 9.5&nbsp;cm before turning into frogs. <span style="opacity:.7">Photo: Wikimedia Commons (CC).</span></figcaption>
+  </figure>
+  <p>Breeding occurs mainly from <strong>spring to autumn</strong>, with timing varying across the range. Eggs are laid in a <strong>floating foam mass</strong>, often among vegetation at the edge of still water. Tadpoles can reach 9.5 cm in total length and may take <strong>seven to eight months</strong> to metamorphose. A breeding pond therefore needs to hold water long enough for development to finish.</p>
+
+  <figure class="photo-fig">
+    <img alt="Striped marsh frog eggs in a foam nest"
+         src="https://commons.wikimedia.org/wiki/Special:FilePath/Striped%20Marsh%20Frog%20Eggs,%20Limnodynastes%20peronii%20-%20Flickr%20-%20GregTheBusker.jpg?width=1100"
+         onerror="this.closest('figure').style.display='none'">
+    <figcaption>The species' distinctive floating foam egg-raft. <span style="opacity:.7">Photo: Greg Schechter, via Wikimedia Commons (CC BY).</span></figcaption>
+  </figure>
+
+  <h2>Habitat &amp; why it thrives near people</h2>
+  <p>The species breeds in still or slow-moving water—ponds, marshes, swamps, slow streams, drainage channels and garden fishponds. It often persists in disturbed urban and agricultural landscapes and has been recorded breeding in water bodies that are unsuitable for more sensitive frog species. By day, adults commonly shelter beneath logs, rocks, leaf litter or other debris.</p>
+
+  <h2>Telling it apart</h2>
+  <p>Most similar <em>Limnodynastes</em> marsh frogs are <strong>spotted rather than striped</strong>. The salmon-striped burrowing frog (<em>L. salmini</em>) has salmon-pink or orange stripes, whereas <em>L. peronii</em> has dark brown stripes. A recording of the call is often more useful than colour alone.</p>
+
+  <div class="callout"><span class="call-badge">CARE</span><div>Observe without handling, never move frogs or spawn between water bodies, and keep detergents, pesticides and other chemicals away from frog habitat. Recordings can be submitted to the Australian Museum’s <strong>FrogID</strong> project.</div></div>
+
+  <h2>Quick facts</h2>
+  <table>
+    <tr><th>Species</th><td><em>Limnodynastes peronii</em></td></tr>
+    <tr><th>Family</th><td>Limnodynastidae (Australian ground frogs)</td></tr>
+    <tr><th>Size</th><td>Up to about 75 mm body length</td></tr>
+    <tr><th>Call</th><td>Repeated single “tok” or “whuck”</td></tr>
+    <tr><th>Habitat</th><td>Still and slow water, including urban ponds and drains</td></tr>
+    <tr><th>Breeding</th><td>Mainly spring–autumn; floating foam egg masses</td></tr>
+    <tr><th>Tadpoles</th><td>Up to 9.5 cm; 7–8 months to metamorphose</td></tr>
+    <tr><th>Range</th><td>Coastal eastern Australia, ACT, south-eastern SA and northern TAS</td></tr>
+  </table>
+
+  <div class="sources">
+    <strong>Sources</strong>
+    <ul>
+      <li><a href="https://australian.museum/learn/animals/frogs/striped-marsh-frog/">Striped Marsh Frog — The Australian Museum</a></li>
+      <li><a href="https://amphibiansoftheworld.amnh.org/Amphibia/Anura/Myobatrachoidea/Limnodynastidae/Limnodynastes/Limnodynastes-peronii"><em>Limnodynastes peronii</em> — Amphibian Species of the World</a></li>
+      <li><a href="https://animaldiversity.org/accounts/Limnodynastes_peronii/">Limnodynastes peronii — Animal Diversity Web</a></li>
+      <li><a href="https://www.australiangeographic.com.au/fact-file/striped-marsh-frog-limnodynastes-peronii/">Striped marsh frog fact file — Australian Geographic</a></li>
+      <li><a href="https://www.frogid.net.au/">FrogID — Australian Museum</a></li>
+    </ul>
+  </div>
+</main>
+</body>
+</html>
