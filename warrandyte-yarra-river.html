@@ -93,6 +93,8 @@
     stroke-linecap:round;stroke-linejoin:round}
   .sound-status{min-height:1.4em;margin:14px 0 0!important;color:#f0e9dc;
     font-family:var(--sans);font-size:.78rem!important;line-height:1.45}
+  .sound-credit{margin:8px 0 0!important;color:#e4dac8;font-family:var(--sans);
+    font-size:.68rem!important;line-height:1.5;opacity:.9}
   @media(max-width:600px){.sound-buttons{grid-template-columns:1fr}.sound-btn{min-height:78px;padding:12px}}
   @media(prefers-reduced-motion:reduce){.sound-btn{transition:none}.sound-btn:hover{transform:none}}
 
@@ -143,13 +145,14 @@
 
   <section class="soundscape" aria-labelledby="soundscape-title">
     <h2 id="soundscape-title">Listen to the river corridor</h2>
-    <p class="sound-intro">Choose a button for a short, generated soundscape sketch. These illustrative sounds are made inside your browser—not loaded from another website—and only play when you click.</p>
+    <p class="sound-intro">Hear three different field recordings: flowing water and two familiar Australian birds. The audio files are stored with this website and only play when you tap.</p>
     <div class="sound-buttons">
-      <button class="sound-btn" type="button" data-sound="river" aria-pressed="false"><span class="sound-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h15M15 4l3 3-3 3"/><path d="M3 14c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 3-2"/><path d="M4 20h16"/></svg></span>River current</button>
-      <button class="sound-btn" type="button" data-sound="breeze" aria-pressed="false"><span class="sound-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18C4 10 10 5 20 4c-1 10-6 16-13 16-1.5 0-2.5-.8-3-2Z"/><path d="M5 19c4-5 8-8 13-12"/><path d="M10 14H7M14 10V7"/></svg></span>Eucalypt breeze</button>
-      <button class="sound-btn" type="button" data-sound="birds" aria-pressed="false"><span class="sound-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 14c3-.5 5-3.5 6-7 2 3 5 5 10 5-2 4-5 6-9 6-3 0-5-1.5-7-4Z"/><path d="m19 12 3-1M9 18v3M14 18v3"/><path d="M5 21h13"/></svg></span>Bush birds</button>
+      <button class="sound-btn" type="button" data-sound="river" aria-pressed="false"><span class="sound-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h15M15 4l3 3-3 3"/><path d="M3 14c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 3-2"/><path d="M4 20h16"/></svg></span>Flowing river water</button>
+      <button class="sound-btn" type="button" data-sound="kookaburra" aria-pressed="false"><span class="sound-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 14c3-.5 5-3.5 6-7 2 3 5 5 10 5-2 4-5 6-9 6-3 0-5-1.5-7-4Z"/><path d="m19 12 3-1M9 18v3M14 18v3"/><path d="M5 21h13"/></svg></span>Laughing kookaburra</button>
+      <button class="sound-btn" type="button" data-sound="magpie" aria-pressed="false"><span class="sound-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 16c2-5 5-8 10-8 3 0 5 1 7 3-3 1-5 3-7 6-4 2-7 2-10-1Z"/><path d="m20 11 2-1M9 18v3M14 17v4"/><path d="M5 21h13"/></svg></span>Australian magpie</button>
     </div>
     <p class="sound-status" id="sound-status" role="status" aria-live="polite">Choose a sound to begin.</p>
+    <p class="sound-credit">Recordings: Fg2 (public domain); Kuco (public domain); skyflower2 / iNaturalist (CC BY-NC).</p>
   </section>
 
   <div class="cards">
@@ -298,130 +301,61 @@
   (function () {
     var buttons = Array.prototype.slice.call(document.querySelectorAll('.sound-btn'));
     var status = document.getElementById('sound-status');
-    var labels = {river:'river current', breeze:'eucalypt breeze', birds:'bush birds'};
-    var context;
+    var tracks = {
+      river: {src:'audio/flowing-water.mp3', label:'flowing river water'},
+      kookaburra: {src:'audio/laughing-kookaburra.mp3', label:'the laughing kookaburra'},
+      magpie: {src:'audio/australian-magpie.m4a', label:'the Australian magpie'}
+    };
+    var player = document.createElement('audio');
+    player.preload = 'none';
+    player.setAttribute('playsinline', '');
+    player.hidden = true;
+    document.body.appendChild(player);
     var activeButton = null;
-    var activeNodes = [];
-    var finishTimer = null;
-
-    function remember(node) { activeNodes.push(node); return node; }
 
     function reset(message) {
-      clearTimeout(finishTimer);
-      activeNodes.forEach(function (node) {
-        try { if (typeof node.stop === 'function') node.stop(); } catch (error) {}
-        try { node.disconnect(); } catch (error) {}
-      });
-      activeNodes = [];
+      if (typeof player.pause === 'function') player.pause();
       buttons.forEach(function (button) { button.setAttribute('aria-pressed', 'false'); });
       activeButton = null;
       if (message) status.textContent = message;
     }
 
-    function noise(duration) {
-      var buffer = context.createBuffer(1, context.sampleRate * duration, context.sampleRate);
-      var samples = buffer.getChannelData(0);
-      for (var i = 0; i < samples.length; i += 1) samples[i] = Math.random() * 2 - 1;
-      var source = remember(context.createBufferSource());
-      source.buffer = buffer;
-      return source;
-    }
-
-    function playRiver(now) {
-      var source = noise(6.4);
-      var filter = remember(context.createBiquadFilter());
-      var gain = remember(context.createGain());
-      filter.type = 'lowpass';
-      filter.frequency.value = 920;
-      gain.gain.setValueAtTime(.025, now);
-      gain.gain.linearRampToValueAtTime(.14, now + .8);
-      gain.gain.linearRampToValueAtTime(.055, now + 2.2);
-      gain.gain.linearRampToValueAtTime(.13, now + 4.1);
-      gain.gain.linearRampToValueAtTime(.001, now + 6.2);
-      source.connect(filter);
-      filter.connect(gain);
-      gain.connect(context.destination);
-      source.start(now);
-    }
-
-    function playBreeze(now) {
-      var source = noise(6.4);
-      var filter = remember(context.createBiquadFilter());
-      var gain = remember(context.createGain());
-      var lfo = remember(context.createOscillator());
-      var depth = remember(context.createGain());
-      filter.type = 'bandpass';
-      filter.frequency.value = 1250;
-      filter.Q.value = .45;
-      gain.gain.setValueAtTime(.025, now);
-      gain.gain.linearRampToValueAtTime(.11, now + 1.1);
-      gain.gain.linearRampToValueAtTime(.045, now + 3.1);
-      gain.gain.linearRampToValueAtTime(.1, now + 4.7);
-      gain.gain.linearRampToValueAtTime(.001, now + 6.2);
-      lfo.frequency.value = .22;
-      depth.gain.value = 320;
-      lfo.connect(depth);
-      depth.connect(filter.frequency);
-      source.connect(filter);
-      filter.connect(gain);
-      gain.connect(context.destination);
-      source.start(now);
-      lfo.start(now);
-    }
-
-    function chirp(start, low, high) {
-      var oscillator = remember(context.createOscillator());
-      var gain = remember(context.createGain());
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(low, start);
-      oscillator.frequency.exponentialRampToValueAtTime(high, start + .12);
-      oscillator.frequency.exponentialRampToValueAtTime(low * 1.08, start + .3);
-      gain.gain.setValueAtTime(.001, start);
-      gain.gain.exponentialRampToValueAtTime(.07, start + .045);
-      gain.gain.exponentialRampToValueAtTime(.001, start + .32);
-      oscillator.connect(gain);
-      gain.connect(context.destination);
-      oscillator.start(start);
-      oscillator.stop(start + .34);
-    }
-
-    function playBirds(now) {
-      [[.1,1150,2450],[.55,1370,2900],[1.75,920,2150],[2.15,1070,2580],
-       [3.45,1280,2700],[3.85,1520,3150],[5.05,1020,2350],[5.45,1200,2800]]
-        .forEach(function (call) { chirp(now + call[0], call[1], call[2]); });
-    }
-
     function toggle(button) {
-      if (activeButton === button) {
+      if (activeButton === button && !player.paused) {
         reset('Sound stopped. Choose another when you are ready.');
         return;
       }
       reset();
-      var AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) {
-        status.textContent = 'Your browser does not support generated audio.';
-        return;
-      }
-      if (!context) context = new AudioContext();
-      if (context.state !== 'running') {
-        var resumeAttempt = context.resume();
-        if (resumeAttempt && typeof resumeAttempt.catch === 'function') {
-          resumeAttempt.catch(function () { reset('Sound was blocked. Tap a sound button again to allow audio.'); });
-        }
-      }
+      var key = button.getAttribute('data-sound');
+      var track = tracks[key];
       activeButton = button;
       button.setAttribute('aria-pressed', 'true');
-      var sound = button.getAttribute('data-sound');
-      var now = context.currentTime + .04;
-      if (sound === 'river') playRiver(now);
-      if (sound === 'breeze') playBreeze(now);
-      if (sound === 'birds') playBirds(now);
-      status.textContent = 'Playing ' + labels[sound] + '. Click the button again to stop.';
-      finishTimer = setTimeout(function () { reset('Sound finished. Choose another to listen again.'); }, 6500);
+      player.src = track.src;
+      player.currentTime = 0;
+      status.textContent = 'Loading ' + track.label + '…';
+      if (typeof player.play !== 'function') {
+        reset('This browser does not support audio playback.');
+        return;
+      }
+      var playAttempt = player.play();
+      if (playAttempt && typeof playAttempt.catch === 'function') {
+        playAttempt.catch(function () {
+          if (activeButton === button) reset('Sound was blocked. Tap the button again to allow audio.');
+        });
+      }
     }
 
     buttons.forEach(function (button) {
       button.addEventListener('click', function () { toggle(button); });
+    });
+    player.addEventListener('playing', function () {
+      if (!activeButton) return;
+      var track = tracks[activeButton.getAttribute('data-sound')];
+      status.textContent = 'Playing ' + track.label + '. Tap the button again to stop.';
+    });
+    player.addEventListener('ended', function () { reset('Sound finished. Choose another to listen again.'); });
+    player.addEventListener('error', function () {
+      if (activeButton) reset('This recording could not be loaded. Please try again.');
     });
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape' && activeButton) reset('Sound stopped.');

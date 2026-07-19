@@ -112,6 +112,8 @@
     stroke-linecap:round;stroke-linejoin:round}
   .sound-status{min-height:1.4em;margin:14px 0 0!important;color:#deeee4;
     font-family:var(--sans);font-size:.78rem!important;line-height:1.45}
+  .sound-credit{margin:8px 0 0!important;color:#d2e7da;font-family:var(--sans);
+    font-size:.68rem!important;line-height:1.5;opacity:.9}
   @media(max-width:600px){.sound-buttons{grid-template-columns:1fr}.sound-btn{min-height:78px;padding:12px}}
   @media(prefers-reduced-motion:reduce){.sound-btn{transition:none}.sound-btn:hover{transform:none}}
 
@@ -163,13 +165,14 @@
 
   <section class="soundscape" aria-labelledby="soundscape-title">
     <h2 id="soundscape-title">Listen to the habitat</h2>
-    <p class="sound-intro">Choose a button for a short, generated soundscape sketch. These illustrative sounds are made inside your browser—not loaded from another website—and only play when you click.</p>
+    <p class="sound-intro">Hear a real shoreline and two named Australian coastal birds. The audio files are stored with this website and only play when you tap a button.</p>
     <div class="sound-buttons">
-      <button class="sound-btn" type="button" data-sound="tide" aria-pressed="false"><span class="sound-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 3-2"/><path d="M3 15c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 3-2"/></svg></span>Tidal water</button>
-      <button class="sound-btn" type="button" data-sound="breeze" aria-pressed="false"><span class="sound-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h10c2.5 0 2.5-3.5 0-3.5-1 0-1.8.6-2.1 1.4"/><path d="M3 12h15c2.5 0 2.5-3.5 0-3.5"/><path d="M3 17h8c2.5 0 2.5 3.5 0 3.5-1 0-1.8-.6-2.1-1.4"/></svg></span>Mangrove breeze</button>
-      <button class="sound-btn" type="button" data-sound="birds" aria-pressed="false"><span class="sound-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 13c4-.5 5-4.5 9-5.5 3-.8 6 .8 8 3.5-2.5 2.8-6 4.3-10 3.5L7 20"/><path d="M12 14.5V21"/><path d="M17 13.5l1 6.5"/><path d="m20 11 2-1"/></svg></span>Shorebird calls</button>
+      <button class="sound-btn" type="button" data-sound="shore" aria-pressed="false"><span class="sound-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 3-2"/><path d="M3 15c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 3-2"/></svg></span>Lapping shoreline</button>
+      <button class="sound-btn" type="button" data-sound="oystercatcher" aria-pressed="false"><span class="sound-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 13c4-.5 5-4.5 9-5.5 3-.8 6 .8 8 3.5-2.5 2.8-6 4.3-10 3.5L7 20"/><path d="M12 14.5V21"/><path d="M17 13.5l1 6.5"/><path d="m20 11 2-1"/></svg></span>Pied oystercatcher</button>
+      <button class="sound-btn" type="button" data-sound="gull" aria-pressed="false"><span class="sound-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 15c4-1 6-4 8-8 2 3 5 5 10 5-3 5-7 7-11 7-3 0-5-1-7-4Z"/><path d="m20 12 2-1M9 19v2M14 18v3"/></svg></span>Silver gull</button>
     </div>
     <p class="sound-status" id="sound-status" role="status" aria-live="polite">Choose a sound to begin.</p>
+    <p class="sound-credit">Recordings: earthcalling (public domain); Sue Tardif / iNaturalist (CC BY-NC); smathichong / iNaturalist (CC BY).</p>
   </section>
 
   <h2>One Victorian mangrove, two names</h2>
@@ -263,133 +266,61 @@
   (function () {
     var buttons = Array.prototype.slice.call(document.querySelectorAll('.sound-btn'));
     var status = document.getElementById('sound-status');
-    var labels = {tide:'tidal water', breeze:'mangrove breeze', birds:'shorebird calls'};
-    var context;
+    var tracks = {
+      shore: {src:'audio/tidal-shore.mp3', label:'the lapping shoreline'},
+      oystercatcher: {src:'audio/pied-oystercatcher.m4a', label:'the pied oystercatcher'},
+      gull: {src:'audio/silver-gull.m4a', label:'the silver gull'}
+    };
+    var player = document.createElement('audio');
+    player.preload = 'none';
+    player.setAttribute('playsinline', '');
+    player.hidden = true;
+    document.body.appendChild(player);
     var activeButton = null;
-    var activeNodes = [];
-    var finishTimer = null;
-
-    function remember(node) {
-      activeNodes.push(node);
-      return node;
-    }
 
     function reset(message) {
-      clearTimeout(finishTimer);
-      activeNodes.forEach(function (node) {
-        try { if (typeof node.stop === 'function') node.stop(); } catch (error) {}
-        try { node.disconnect(); } catch (error) {}
-      });
-      activeNodes = [];
+      if (typeof player.pause === 'function') player.pause();
       buttons.forEach(function (button) { button.setAttribute('aria-pressed', 'false'); });
       activeButton = null;
       if (message) status.textContent = message;
     }
 
-    function noise(duration) {
-      var buffer = context.createBuffer(1, context.sampleRate * duration, context.sampleRate);
-      var samples = buffer.getChannelData(0);
-      for (var i = 0; i < samples.length; i += 1) samples[i] = Math.random() * 2 - 1;
-      var source = remember(context.createBufferSource());
-      source.buffer = buffer;
-      return source;
-    }
-
-    function playTide(now) {
-      var source = noise(6.4);
-      var filter = remember(context.createBiquadFilter());
-      var gain = remember(context.createGain());
-      filter.type = 'lowpass';
-      filter.frequency.value = 680;
-      gain.gain.setValueAtTime(0.001, now);
-      [0, 2, 4].forEach(function (offset) {
-        gain.gain.exponentialRampToValueAtTime(0.18, now + offset + .7);
-        gain.gain.exponentialRampToValueAtTime(0.025, now + offset + 1.9);
-      });
-      source.connect(filter);
-      filter.connect(gain);
-      gain.connect(context.destination);
-      source.start(now);
-    }
-
-    function playBreeze(now) {
-      var source = noise(6.4);
-      var filter = remember(context.createBiquadFilter());
-      var gain = remember(context.createGain());
-      var lfo = remember(context.createOscillator());
-      var lfoDepth = remember(context.createGain());
-      filter.type = 'bandpass';
-      filter.frequency.value = 1050;
-      filter.Q.value = .45;
-      gain.gain.setValueAtTime(.035, now);
-      gain.gain.linearRampToValueAtTime(.12, now + 1.2);
-      gain.gain.linearRampToValueAtTime(.055, now + 3.2);
-      gain.gain.linearRampToValueAtTime(.11, now + 4.5);
-      gain.gain.linearRampToValueAtTime(.001, now + 6.2);
-      lfo.frequency.value = .24;
-      lfoDepth.gain.value = 260;
-      lfo.connect(lfoDepth);
-      lfoDepth.connect(filter.frequency);
-      source.connect(filter);
-      filter.connect(gain);
-      gain.connect(context.destination);
-      source.start(now);
-      lfo.start(now);
-    }
-
-    function chirp(start, low, high) {
-      var oscillator = remember(context.createOscillator());
-      var gain = remember(context.createGain());
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(low, start);
-      oscillator.frequency.exponentialRampToValueAtTime(high, start + .12);
-      oscillator.frequency.exponentialRampToValueAtTime(low * 1.08, start + .3);
-      gain.gain.setValueAtTime(.001, start);
-      gain.gain.exponentialRampToValueAtTime(.075, start + .045);
-      gain.gain.exponentialRampToValueAtTime(.001, start + .32);
-      oscillator.connect(gain);
-      gain.connect(context.destination);
-      oscillator.start(start);
-      oscillator.stop(start + .34);
-    }
-
-    function playBirds(now) {
-      [[.1,1250,2350],[.55,1420,2800],[1.65,980,2200],[2.05,1100,2550],
-       [3.35,1320,2600],[3.75,1550,3100],[4.9,1050,2300],[5.35,1250,2750]]
-        .forEach(function (call) { chirp(now + call[0], call[1], call[2]); });
-    }
-
     function toggle(button) {
-      if (activeButton === button) {
+      if (activeButton === button && !player.paused) {
         reset('Sound stopped. Choose another when you are ready.');
         return;
       }
       reset();
-      var AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) {
-        status.textContent = 'Your browser does not support generated audio.';
-        return;
-      }
-      if (!context) context = new AudioContext();
-      if (context.state !== 'running') {
-        var resumeAttempt = context.resume();
-        if (resumeAttempt && typeof resumeAttempt.catch === 'function') {
-          resumeAttempt.catch(function () { reset('Sound was blocked. Tap a sound button again to allow audio.'); });
-        }
-      }
+      var key = button.getAttribute('data-sound');
+      var track = tracks[key];
       activeButton = button;
       button.setAttribute('aria-pressed', 'true');
-      var sound = button.getAttribute('data-sound');
-      var now = context.currentTime + .04;
-      if (sound === 'tide') playTide(now);
-      if (sound === 'breeze') playBreeze(now);
-      if (sound === 'birds') playBirds(now);
-      status.textContent = 'Playing ' + labels[sound] + '. Click the button again to stop.';
-      finishTimer = setTimeout(function () { reset('Sound finished. Choose another to listen again.'); }, 6500);
+      player.src = track.src;
+      player.currentTime = 0;
+      status.textContent = 'Loading ' + track.label + '…';
+      if (typeof player.play !== 'function') {
+        reset('This browser does not support audio playback.');
+        return;
+      }
+      var playAttempt = player.play();
+      if (playAttempt && typeof playAttempt.catch === 'function') {
+        playAttempt.catch(function () {
+          if (activeButton === button) reset('Sound was blocked. Tap the button again to allow audio.');
+        });
+      }
     }
 
     buttons.forEach(function (button) {
       button.addEventListener('click', function () { toggle(button); });
+    });
+    player.addEventListener('playing', function () {
+      if (!activeButton) return;
+      var track = tracks[activeButton.getAttribute('data-sound')];
+      status.textContent = 'Playing ' + track.label + '. Tap the button again to stop.';
+    });
+    player.addEventListener('ended', function () { reset('Sound finished. Choose another to listen again.'); });
+    player.addEventListener('error', function () {
+      if (activeButton) reset('This recording could not be loaded. Please try again.');
     });
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape' && activeButton) reset('Sound stopped.');
