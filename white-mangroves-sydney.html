@@ -90,6 +90,28 @@
   .callout .k{font-family:var(--sans);font-weight:700;color:var(--moss);
     text-transform:uppercase;letter-spacing:1.5px;font-size:.72rem;display:block;margin-bottom:4px}
 
+  /* ---------- SELF-CONTAINED SOUNDS ---------- */
+  .soundscape{margin:34px 0;padding:26px;border-radius:20px;color:#f4fbf5;
+    background:linear-gradient(135deg,var(--moss-dark),#245d48 58%,#2f7180);
+    box-shadow:0 12px 30px rgba(23,58,42,.18)}
+  .soundscape h2{color:#fff;margin:0 0 6px;padding-left:0}
+  .soundscape h2::before{display:none}
+  .soundscape .sound-intro{margin:.25em 0 18px;color:#deeee4;
+    font-family:var(--sans);font-size:.88rem;line-height:1.55}
+  .sound-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .sound-btn{appearance:none;border:1px solid rgba(255,255,255,.34);border-radius:14px;
+    padding:15px 10px;background:rgba(255,255,255,.1);color:#fff;cursor:pointer;
+    font-family:var(--sans);font-size:.86rem;font-weight:600;line-height:1.3;
+    transition:transform .18s,background .18s,border-color .18s}
+  .sound-btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.18)}
+  .sound-btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+  .sound-btn[aria-pressed="true"]{background:#fff;color:var(--moss-dark);border-color:#fff}
+  .sound-icon{display:block;font-family:var(--serif);font-size:1.5rem;line-height:1;margin-bottom:7px}
+  .sound-status{min-height:1.4em;margin:14px 0 0!important;color:#deeee4;
+    font-family:var(--sans);font-size:.78rem!important;line-height:1.45}
+  @media(max-width:600px){.sound-buttons{grid-template-columns:1fr}}
+  @media(prefers-reduced-motion:reduce){.sound-btn{transition:none}.sound-btn:hover{transform:none}}
+
   ul.rich{list-style:none;padding:0;margin:18px 0}
   ul.rich li{position:relative;padding:10px 0 10px 34px;border-bottom:1px dashed var(--line)}
   ul.rich li::before{content:"";position:absolute;left:6px;top:19px;width:10px;height:10px;
@@ -135,6 +157,17 @@
     <a href="white-mangroves-sydney.html" aria-current="page">Melbourne mangroves</a>
   </nav>
   <p class="lead">Melbourne’s “white mangrove” is the tree also called the grey mangrove. Around Port Phillip and Western Port, its roots connect sheltered tidal mud, coastal water and a rich food web.</p>
+
+  <section class="soundscape" aria-labelledby="soundscape-title">
+    <h2 id="soundscape-title">Listen to the habitat</h2>
+    <p class="sound-intro">Choose a button for a short, generated soundscape sketch. These illustrative sounds are made inside your browser—not loaded from another website—and only play when you click.</p>
+    <div class="sound-buttons">
+      <button class="sound-btn" type="button" data-sound="tide" aria-pressed="false"><span class="sound-icon" aria-hidden="true">≈</span>Tidal water</button>
+      <button class="sound-btn" type="button" data-sound="breeze" aria-pressed="false"><span class="sound-icon" aria-hidden="true">〰</span>Mangrove breeze</button>
+      <button class="sound-btn" type="button" data-sound="birds" aria-pressed="false"><span class="sound-icon" aria-hidden="true">⌁</span>Shorebird calls</button>
+    </div>
+    <p class="sound-status" id="sound-status" role="status" aria-live="polite">Choose a sound to begin.</p>
+  </section>
 
   <h2>One Victorian mangrove, two names</h2>
   <p>Both names describe the same species, <em>Avicennia marina</em>. The accepted name for the Victorian subspecies is <strong><em>Avicennia marina</em> subsp. <em>australasica</em></strong>; the older “var. <em>australasica</em>” still appears in some reports and field guides. Its bark is grey, and the leaf undersides are covered with fine grey-white hairs. Salt secreted through the leaves can add a crystalline coating. The tree belongs to the family Acanthaceae.</p>
@@ -223,5 +256,126 @@
     </ul>
   </div>
 </main>
+<script>
+  (() => {
+    const buttons = [...document.querySelectorAll('.sound-btn')];
+    const status = document.getElementById('sound-status');
+    const labels = {tide:'tidal water', breeze:'mangrove breeze', birds:'shorebird calls'};
+    let context;
+    let activeButton = null;
+    let activeNodes = [];
+    let finishTimer = null;
+
+    const remember = node => (activeNodes.push(node), node);
+
+    function reset(message) {
+      clearTimeout(finishTimer);
+      activeNodes.forEach(node => {
+        try { if (typeof node.stop === 'function') node.stop(); } catch (_) {}
+        try { node.disconnect(); } catch (_) {}
+      });
+      activeNodes = [];
+      buttons.forEach(button => button.setAttribute('aria-pressed', 'false'));
+      activeButton = null;
+      if (message) status.textContent = message;
+    }
+
+    function noise(duration) {
+      const buffer = context.createBuffer(1, context.sampleRate * duration, context.sampleRate);
+      const samples = buffer.getChannelData(0);
+      for (let i = 0; i < samples.length; i += 1) samples[i] = Math.random() * 2 - 1;
+      const source = remember(context.createBufferSource());
+      source.buffer = buffer;
+      return source;
+    }
+
+    function playTide(now) {
+      const source = noise(6.4);
+      const filter = remember(context.createBiquadFilter());
+      const gain = remember(context.createGain());
+      filter.type = 'lowpass';
+      filter.frequency.value = 680;
+      gain.gain.setValueAtTime(0.001, now);
+      [0, 2, 4].forEach(offset => {
+        gain.gain.exponentialRampToValueAtTime(0.18, now + offset + .7);
+        gain.gain.exponentialRampToValueAtTime(0.025, now + offset + 1.9);
+      });
+      source.connect(filter).connect(gain).connect(context.destination);
+      source.start(now);
+    }
+
+    function playBreeze(now) {
+      const source = noise(6.4);
+      const filter = remember(context.createBiquadFilter());
+      const gain = remember(context.createGain());
+      const lfo = remember(context.createOscillator());
+      const lfoDepth = remember(context.createGain());
+      filter.type = 'bandpass';
+      filter.frequency.value = 1050;
+      filter.Q.value = .45;
+      gain.gain.setValueAtTime(.035, now);
+      gain.gain.linearRampToValueAtTime(.12, now + 1.2);
+      gain.gain.linearRampToValueAtTime(.055, now + 3.2);
+      gain.gain.linearRampToValueAtTime(.11, now + 4.5);
+      gain.gain.linearRampToValueAtTime(.001, now + 6.2);
+      lfo.frequency.value = .24;
+      lfoDepth.gain.value = 260;
+      lfo.connect(lfoDepth).connect(filter.frequency);
+      source.connect(filter).connect(gain).connect(context.destination);
+      source.start(now);
+      lfo.start(now);
+    }
+
+    function chirp(start, low, high) {
+      const oscillator = remember(context.createOscillator());
+      const gain = remember(context.createGain());
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(low, start);
+      oscillator.frequency.exponentialRampToValueAtTime(high, start + .12);
+      oscillator.frequency.exponentialRampToValueAtTime(low * 1.08, start + .3);
+      gain.gain.setValueAtTime(.001, start);
+      gain.gain.exponentialRampToValueAtTime(.075, start + .045);
+      gain.gain.exponentialRampToValueAtTime(.001, start + .32);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start(start);
+      oscillator.stop(start + .34);
+    }
+
+    function playBirds(now) {
+      [[.1,1250,2350],[.55,1420,2800],[1.65,980,2200],[2.05,1100,2550],
+       [3.35,1320,2600],[3.75,1550,3100],[4.9,1050,2300],[5.35,1250,2750]]
+        .forEach(([offset, low, high]) => chirp(now + offset, low, high));
+    }
+
+    async function toggle(button) {
+      if (activeButton === button) {
+        reset('Sound stopped. Choose another when you are ready.');
+        return;
+      }
+      reset();
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) {
+        status.textContent = 'Your browser does not support generated audio.';
+        return;
+      }
+      context ||= new AudioContext();
+      await context.resume();
+      activeButton = button;
+      button.setAttribute('aria-pressed', 'true');
+      const sound = button.dataset.sound;
+      const now = context.currentTime + .04;
+      if (sound === 'tide') playTide(now);
+      if (sound === 'breeze') playBreeze(now);
+      if (sound === 'birds') playBirds(now);
+      status.textContent = `Playing ${labels[sound]}. Click the button again to stop.`;
+      finishTimer = setTimeout(() => reset('Sound finished. Choose another to listen again.'), 6500);
+    }
+
+    buttons.forEach(button => button.addEventListener('click', () => toggle(button)));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && activeButton) reset('Sound stopped.');
+    });
+  })();
+</script>
 </body>
 </html>
