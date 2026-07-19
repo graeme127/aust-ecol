@@ -3,6 +3,233 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="An evidence-checked profile of Melbourne's grey or white mangroves, including local sites, adaptations, conservation and estuarine ecology.">
+<title>Grey (or White) Mangroves around Melbourne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#13251d; --muted:#4a5f56; --line:#dbe7de;
+    --moss:#2f6d4f; --moss-dark:#173a2a; --sea:#2f7f8f; --sand:#e9e3d3;
+    --leaf:#5a9367; --paper:#f7faf6; --accent:#d08a3e;
+    --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:var(--serif);line-height:1.7;font-size:18px;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:0 24px 96px}
+  .topic-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin:24px 0 12px;
+    font-family:var(--sans);font-size:.78rem}
+  .topic-nav a{color:var(--moss-dark);background:#fff;border:1px solid var(--line);border-radius:999px;
+    padding:7px 12px;text-decoration:none;box-shadow:0 3px 10px rgba(23,58,42,.05)}
+  .topic-nav a:hover{border-color:var(--moss);color:var(--sea)}
+  .topic-nav a[aria-current="page"]{background:var(--moss-dark);border-color:var(--moss-dark);color:#fff}
+
+  /* ---------- HERO ---------- */
+  header.hero{position:relative;color:#eef7ef;text-align:center;
+    padding:0 20px 46px;overflow:hidden;min-height:560px;
+    background:linear-gradient(160deg,#1c4634,#2f6d4f 55%,#4e8f8b);
+    display:flex;flex-direction:column;justify-content:flex-end}
+  .hero .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+  .hero .overlay{position:absolute;inset:0;z-index:1;
+    background:linear-gradient(180deg,rgba(12,40,28,.34) 0%,rgba(12,40,28,.12) 42%,rgba(12,40,28,.72) 100%)}
+  .hero .htext{position:relative;z-index:2}
+  .hero .credit{position:absolute;right:14px;bottom:10px;z-index:2;
+    font-family:var(--sans);font-size:.66rem;letter-spacing:.3px;opacity:.72}
+  figure.photo-fig{margin:36px 0}
+  figure.photo-fig img{width:100%;height:auto;border-radius:18px;display:block;
+    box-shadow:0 10px 34px rgba(23,58,42,.16)}
+  .hero .tag{display:inline-block;font-family:var(--sans);
+    font-size:.72rem;letter-spacing:3px;text-transform:uppercase;font-weight:600;
+    background:rgba(255,255,255,.16);backdrop-filter:blur(3px);
+    padding:7px 16px;border-radius:30px;border:1px solid rgba(255,255,255,.25)}
+  .hero h1{font-family:var(--serif);font-weight:600;
+    font-size:clamp(2.2rem,6vw,3.4rem);margin:.35em 0 .1em;
+    letter-spacing:-.5px;text-shadow:0 2px 24px rgba(0,30,20,.35)}
+  .hero .sci{font-style:italic;opacity:.95;font-size:1.2rem;font-weight:400}
+
+  /* ---------- TYPE ---------- */
+  h2{font-family:var(--serif);font-weight:600;font-size:1.7rem;color:var(--moss-dark);
+    margin:2.6em 0 .4em;letter-spacing:-.3px;position:relative;padding-left:20px}
+  h2::before{content:"";position:absolute;left:0;top:.18em;bottom:.18em;width:5px;
+    border-radius:4px;background:linear-gradient(var(--moss),var(--sea))}
+  h3{font-family:var(--sans);font-weight:600;color:var(--sea);font-size:1.08rem;
+    margin:1.6em 0 .2em;letter-spacing:.2px}
+  p{margin:.75em 0}
+  .lead{font-size:1.28rem;line-height:1.6;color:var(--moss-dark);font-weight:400;
+    margin-top:2em}
+  .lead::first-letter{initial-letter:2;-webkit-initial-letter:2;
+    font-weight:600;color:var(--moss);margin-right:10px}
+  strong{color:var(--moss-dark)}
+  em{color:inherit}
+
+  /* ---------- STAT CARDS ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:16px;margin:34px 0}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;
+    box-shadow:0 6px 20px rgba(23,58,42,.06);transition:transform .2s,box-shadow .2s;
+    text-align:center}
+  .card:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(23,58,42,.12)}
+  .card .n{font-family:var(--serif);font-weight:700;color:var(--moss);font-size:1.9rem;line-height:1}
+  .card .l{font-family:var(--sans);font-size:.74rem;text-transform:uppercase;
+    letter-spacing:1.2px;color:var(--muted);margin-top:8px}
+
+  figure{margin:36px 0;text-align:center}
+  figure svg{width:100%;height:auto;border-radius:18px;
+    box-shadow:0 10px 34px rgba(23,58,42,.12)}
+  figcaption{font-family:var(--sans);font-size:.86rem;color:var(--muted);
+    margin-top:14px;max-width:620px;margin-left:auto;margin-right:auto}
+
+  .callout{position:relative;background:linear-gradient(135deg,#eef6ef,#e2f0ea);
+    border:1px solid var(--line);border-left:5px solid var(--moss);
+    padding:20px 24px;border-radius:0 16px 16px 0;margin:30px 0;
+    box-shadow:0 6px 18px rgba(23,58,42,.06)}
+  .callout .k{font-family:var(--sans);font-weight:700;color:var(--moss);
+    text-transform:uppercase;letter-spacing:1.5px;font-size:.72rem;display:block;margin-bottom:4px}
+
+  ul.rich{list-style:none;padding:0;margin:18px 0}
+  ul.rich li{position:relative;padding:10px 0 10px 34px;border-bottom:1px dashed var(--line)}
+  ul.rich li::before{content:"";position:absolute;left:6px;top:19px;width:10px;height:10px;
+    border-radius:50%;background:var(--leaf);box-shadow:0 0 0 4px rgba(90,147,103,.18)}
+
+  table{width:100%;border-collapse:separate;border-spacing:0;margin:24px 0;font-size:.98rem;
+    background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    box-shadow:0 6px 20px rgba(23,58,42,.06)}
+  th,td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child th,tr:last-child td{border-bottom:none}
+  th{width:36%;color:var(--moss-dark);font-family:var(--sans);font-weight:600;
+    font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;background:#f3f8f4}
+
+  .sources{font-family:var(--sans);font-size:.86rem;background:#eef3ee;
+    border-radius:16px;padding:22px 26px;margin-top:52px;border:1px solid var(--line)}
+  .sources strong{font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--moss-dark)}
+  .sources ul{list-style:none;padding:0;margin:12px 0 0}
+  .sources a{color:var(--sea);text-decoration:none;word-break:break-word}
+  .sources a:hover{text-decoration:underline}
+  .sources li{margin:.5em 0;padding-left:16px;position:relative}
+  .sources li::before{content:"›";position:absolute;left:0;color:var(--moss)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <img class="photo" alt="Avicennia marina subsp. australasica mangroves in a temperate estuary"
+       src="https://commons.wikimedia.org/wiki/Special:FilePath/Avicennia%20marina%20Mangrove%20Paihia%201.JPG?width=1600"
+       onerror="this.src='https://commons.wikimedia.org/wiki/Special:FilePath/Grey%20mangroves%20Avicennia%20marina%20at%20Umm%20Al%20Quwain%20Mangrove%20Park.jpg?width=1600'">
+  <div class="overlay"></div>
+  <div class="htext">
+    <div class="tag">Ecological Overview</div>
+    <h1>Grey (or White) Mangroves around Melbourne</h1>
+    <div class="sci">Avicennia marina subsp. australasica</div>
+  </div>
+  <div class="credit">Avicennia marina subsp. australasica — Victoria’s only mangrove. Representative photo: Wikimedia Commons (CC)</div>
+</header>
+
+<main class="wrap">
+  <nav class="topic-nav" aria-label="Ecology profiles">
+    <a href="index.html">All profiles</a>
+    <a href="striped-marsh-frog.html">Striped marsh frog</a>
+    <a href="warrandyte-yarra-river.html">Warrandyte river</a>
+    <a href="white-mangroves-sydney.html" aria-current="page">Melbourne mangroves</a>
+  </nav>
+  <p class="lead">Melbourne’s “white mangrove” is the tree also called the grey mangrove. Around Port Phillip and Western Port, its roots connect sheltered tidal mud, coastal water and a rich food web.</p>
+
+  <h2>One Victorian mangrove, two names</h2>
+  <p>Both names describe the same species, <em>Avicennia marina</em>. The accepted name for the Victorian subspecies is <strong><em>Avicennia marina</em> subsp. <em>australasica</em></strong>; the older “var. <em>australasica</em>” still appears in some reports and field guides. Its bark is grey, and the leaf undersides are covered with fine grey-white hairs. Salt secreted through the leaves can add a crystalline coating. The tree belongs to the family Acanthaceae.</p>
+  <p>It is the <strong>only mangrove species naturally occurring in Victoria</strong>.</p>
+
+  <figure class="photo-fig">
+    <img alt="Avicennia marina grey mangrove tree"
+         src="https://commons.wikimedia.org/wiki/Special:FilePath/Avicennia%20marina%20(grey%20mangrove).JPG?width=1100"
+         onerror="this.closest('figure').style.display='none'">
+    <figcaption><em>Avicennia marina</em> — glossy green upper leaves and a pale, salt-dusted grey habit give the species both common names. <span style="opacity:.7">Representative photo: Wikimedia Commons (CC).</span></figcaption>
+  </figure>
+
+  <div class="cards">
+    <div class="card"><div class="n">1–4 m</div><div class="l">Victorian shrub or small tree</div></div>
+    <div class="card"><div class="n">Pencil roots</div><div class="l">Pneumatophores take in air</div></div>
+    <div class="card"><div class="n">2,313 ha</div><div class="l">Estimated Victorian extent</div></div>
+    <div class="card"><div class="n">Endangered</div><div class="l">Victorian FFG status</div></div>
+  </div>
+
+  <h2>Where Melbourne’s mangroves grow</h2>
+  <p>Grey mangrove occupies sheltered tidal mudflats around <strong>Port Phillip Bay and Western Port</strong>, where regular inundation, fine sediment and protection from strong waves create suitable habitat. VicFlora records it as locally common from the western half of Port Phillip Bay east to Corner Inlet.</p>
+  <p>The most accessible metropolitan example is <strong>Jawbone Marine Sanctuary beside Williamstown</strong>, about 20 minutes from central Melbourne. It protects the largest mangrove area within Port Phillip and Victoria’s only mangroves growing on a basalt coast. Other Port Phillip stands occur around Point Cook, Cheetham Wetlands and Avalon–Limeburners Lagoon.</p>
+  <p>The most extensive and well-developed Victorian communities occur in <strong>Western Port</strong>, including French Island, Yaringa, Churchill Island, Hastings, Lang Lang and Grantville. Victoria’s mangroves are among the world’s most southerly; the southernmost occurrence is recorded at Corner Inlet.</p>
+  <p>Victorian plants are usually compact—a <strong>shrub or small tree about 1–4 metres high</strong>—rather than the much taller trees found in warmer parts of the species’ range.</p>
+
+  <h2>Built for salt, mud and tides</h2>
+  <p>Living in waterlogged, salty, oxygen-poor mud demands a specialised toolkit:</p>
+
+  <figure class="photo-fig">
+    <img alt="Grey mangrove pneumatophores (breathing roots) rising from estuary mud"
+         src="https://commons.wikimedia.org/wiki/Special:FilePath/Pneumatophore%20overkill%20-%20grey%20mangrove.JPG?width=1200"
+         onerror="this.closest('figure').style.display='none'">
+    <figcaption>The grey mangrove's <em>pneumatophores</em> &mdash; upright &quot;snorkel&quot; roots that push up through the mud so the tree can breathe at low tide, when its ground is starved of oxygen. <span style="opacity:.7">Photo: Wikimedia Commons (CC).</span></figcaption>
+  </figure>
+
+  <h3>Pneumatophores</h3>
+  <p>Shallow lateral roots produce hundreds of upright, pencil-like roots. Air enters through pores in these <strong>pneumatophores</strong> when the tide is out, supplying oxygen to tissues buried in waterlogged, oxygen-poor mud.</p>
+  <h3>Salt management</h3>
+  <p>The roots limit salt uptake, and specialised glands on the leaves excrete excess salt. This allows the tree to live in saline water, although growth is often strongest in brackish conditions.</p>
+  <h3>Sediment capture</h3>
+  <p>The root network slows water movement, traps fine sediment and helps stabilise muddy shorelines. Sediment capture can also raise the wetland surface and change where mangrove and saltmarsh plants grow.</p>
+
+  <h2>Flowers, fruit &amp; dispersal</h2>
+  <p>Small white-to-yellow flowers, produced during much of the year in Victoria, are visited by insects. Reproduction is described as <strong>cryptovivipary</strong>: the embryo begins developing while the fruit remains attached to the parent, but it stays enclosed by the fruit wall until dispersal. The buoyant fruit can float with the tide, shed its outer covering and establish when lodged on suitable wet mud.</p>
+  <p>This is more precise than simply calling the species viviparous. In “true” viviparous mangroves such as <em>Rhizophora</em>, the developing seedling visibly grows out through the fruit before it falls.</p>
+
+  <h2>Why Melbourne’s mangroves matter</h2>
+  <p>Mangrove stands are highly productive links between land and estuary. They:</p>
+  <ul class="rich">
+    <li>provide shelter, feeding grounds and <strong>nursery habitat</strong> for fish and crustaceans;</li>
+    <li>support crabs, molluscs, insects and birds, including migratory shorebirds;</li>
+    <li>trap sediment and nutrients, reduce erosion and influence water quality; and</li>
+    <li>store substantial <strong>blue carbon</strong>, especially in their waterlogged soils.</li>
+  </ul>
+  <div class="callout"><span class="k">Think in connected habitats</span>These benefits depend on the condition of the entire coastal wetland—including adjacent mudflats, saltmarsh and seagrass—not on mangroves alone. Western Port’s internationally recognised Ramsar wetland is a particularly important example.</div>
+
+  <h2>A restricted and changing habitat</h2>
+  <p>Victoria’s mangroves are estimated to cover about <strong>2,313 hectares</strong>. Despite being locally common at suitable sites, <em>Avicennia marina</em> subsp. <em>australasica</em> is listed as <strong>Endangered under Victoria’s Flora and Fauna Guarantee Act</strong> because its habitat is restricted and has been substantially modified.</p>
+  <p>Historical clearing and harvesting, coastal development, altered sediment movement, invasive species and erosion have affected mangrove communities. Climate change adds a different pressure: as sea level rises, mangroves and saltmarsh need room to migrate landward. Roads, seawalls, levees and other built structures can block that movement and squeeze coastal wetlands against the shoreline.</p>
+  <p>Mangroves can also expand into adjacent saltmarsh as water levels, sediment and climate change. That shift should not automatically be described as ecological recovery or degradation: both habitats have distinct values and need to be managed as a connected system.</p>
+
+  <h2>Quick facts</h2>
+  <table>
+    <tr><th>Accepted name</th><td><em>Avicennia marina</em> subsp. <em>australasica</em></td></tr>
+    <tr><th>Common names</th><td>Grey mangrove; white mangrove</td></tr>
+    <tr><th>Family</th><td>Acanthaceae</td></tr>
+    <tr><th>Height</th><td>Usually about 1–4 m in Victoria</td></tr>
+    <tr><th>Melbourne-region sites</th><td>Jawbone, Point Cook, Cheetham Wetlands, Avalon and Western Port</td></tr>
+    <tr><th>Zone</th><td>Sheltered intertidal mudflats and estuarine shores</td></tr>
+    <tr><th>Key adaptation</th><td>Pneumatophores and leaf salt glands</td></tr>
+    <tr><th>Reproduction</th><td>Cryptoviviparous; fruit dispersed by tides</td></tr>
+    <tr><th>Victorian extent</th><td>About 2,313 ha</td></tr>
+    <tr><th>Status</th><td>Endangered under Victoria’s FFG Act</td></tr>
+  </table>
+
+  <div class="sources">
+    <strong>Sources</strong>
+    <ul>
+      <li><a href="https://vicflora.rbg.vic.gov.au/flora/taxon/596b8ce1-40d6-4e64-8e45-2318634e7c0e"><em>Avicennia marina</em> subsp. <em>australasica</em> — VicFlora</a></li>
+      <li><a href="https://www.parks.vic.gov.au/get-into-nature/conservation-and-science/our-amazing-diversity/marine">Mangroves — Parks Victoria</a></li>
+      <li><a href="https://www.parks.vic.gov.au/places-to-see/parks/jawbone-marine-sanctuary">Jawbone Marine Sanctuary — Parks Victoria</a></li>
+      <li><a href="https://www.parks.vic.gov.au/places-to-see/parks/yaringa-marine-national-park">Yaringa Marine National Park — Parks Victoria</a></li>
+      <li><a href="https://www.marineandcoasts.vic.gov.au/marine/blue-carbon-in-victoria">Blue carbon in Victoria — Marine and Coasts</a></li>
+      <li><a href="https://www.melbournewater.com.au/water-and-environment/land-and-catchments/caring-western-ports-ramsar-wetlands/western-port">Western Port wetlands — Melbourne Water</a></li>
+      <li><a href="https://www.environment.vic.gov.au/natural-environment-adaptation-action-plan/climate-change-impacts">Climate-change impacts on coastal habitats — Victorian Government</a></li>
+    </ul>
+  </div>
+</main>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="An evidence-checked profile of Sydney's grey or white mangrove, including identification, adaptations, reproduction and estuarine ecology.">
 <title>Grey (or White) Mangroves in Sydney</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
