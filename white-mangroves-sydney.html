@@ -257,59 +257,64 @@
   </div>
 </main>
 <script>
-  (() => {
-    const buttons = [...document.querySelectorAll('.sound-btn')];
-    const status = document.getElementById('sound-status');
-    const labels = {tide:'tidal water', breeze:'mangrove breeze', birds:'shorebird calls'};
-    let context;
-    let activeButton = null;
-    let activeNodes = [];
-    let finishTimer = null;
+  (function () {
+    var buttons = Array.prototype.slice.call(document.querySelectorAll('.sound-btn'));
+    var status = document.getElementById('sound-status');
+    var labels = {tide:'tidal water', breeze:'mangrove breeze', birds:'shorebird calls'};
+    var context;
+    var activeButton = null;
+    var activeNodes = [];
+    var finishTimer = null;
 
-    const remember = node => (activeNodes.push(node), node);
+    function remember(node) {
+      activeNodes.push(node);
+      return node;
+    }
 
     function reset(message) {
       clearTimeout(finishTimer);
-      activeNodes.forEach(node => {
-        try { if (typeof node.stop === 'function') node.stop(); } catch (_) {}
-        try { node.disconnect(); } catch (_) {}
+      activeNodes.forEach(function (node) {
+        try { if (typeof node.stop === 'function') node.stop(); } catch (error) {}
+        try { node.disconnect(); } catch (error) {}
       });
       activeNodes = [];
-      buttons.forEach(button => button.setAttribute('aria-pressed', 'false'));
+      buttons.forEach(function (button) { button.setAttribute('aria-pressed', 'false'); });
       activeButton = null;
       if (message) status.textContent = message;
     }
 
     function noise(duration) {
-      const buffer = context.createBuffer(1, context.sampleRate * duration, context.sampleRate);
-      const samples = buffer.getChannelData(0);
-      for (let i = 0; i < samples.length; i += 1) samples[i] = Math.random() * 2 - 1;
-      const source = remember(context.createBufferSource());
+      var buffer = context.createBuffer(1, context.sampleRate * duration, context.sampleRate);
+      var samples = buffer.getChannelData(0);
+      for (var i = 0; i < samples.length; i += 1) samples[i] = Math.random() * 2 - 1;
+      var source = remember(context.createBufferSource());
       source.buffer = buffer;
       return source;
     }
 
     function playTide(now) {
-      const source = noise(6.4);
-      const filter = remember(context.createBiquadFilter());
-      const gain = remember(context.createGain());
+      var source = noise(6.4);
+      var filter = remember(context.createBiquadFilter());
+      var gain = remember(context.createGain());
       filter.type = 'lowpass';
       filter.frequency.value = 680;
       gain.gain.setValueAtTime(0.001, now);
-      [0, 2, 4].forEach(offset => {
+      [0, 2, 4].forEach(function (offset) {
         gain.gain.exponentialRampToValueAtTime(0.18, now + offset + .7);
         gain.gain.exponentialRampToValueAtTime(0.025, now + offset + 1.9);
       });
-      source.connect(filter).connect(gain).connect(context.destination);
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(context.destination);
       source.start(now);
     }
 
     function playBreeze(now) {
-      const source = noise(6.4);
-      const filter = remember(context.createBiquadFilter());
-      const gain = remember(context.createGain());
-      const lfo = remember(context.createOscillator());
-      const lfoDepth = remember(context.createGain());
+      var source = noise(6.4);
+      var filter = remember(context.createBiquadFilter());
+      var gain = remember(context.createGain());
+      var lfo = remember(context.createOscillator());
+      var lfoDepth = remember(context.createGain());
       filter.type = 'bandpass';
       filter.frequency.value = 1050;
       filter.Q.value = .45;
@@ -320,15 +325,18 @@
       gain.gain.linearRampToValueAtTime(.001, now + 6.2);
       lfo.frequency.value = .24;
       lfoDepth.gain.value = 260;
-      lfo.connect(lfoDepth).connect(filter.frequency);
-      source.connect(filter).connect(gain).connect(context.destination);
+      lfo.connect(lfoDepth);
+      lfoDepth.connect(filter.frequency);
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(context.destination);
       source.start(now);
       lfo.start(now);
     }
 
     function chirp(start, low, high) {
-      const oscillator = remember(context.createOscillator());
-      const gain = remember(context.createGain());
+      var oscillator = remember(context.createOscillator());
+      var gain = remember(context.createGain());
       oscillator.type = 'sine';
       oscillator.frequency.setValueAtTime(low, start);
       oscillator.frequency.exponentialRampToValueAtTime(high, start + .12);
@@ -336,7 +344,8 @@
       gain.gain.setValueAtTime(.001, start);
       gain.gain.exponentialRampToValueAtTime(.075, start + .045);
       gain.gain.exponentialRampToValueAtTime(.001, start + .32);
-      oscillator.connect(gain).connect(context.destination);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
       oscillator.start(start);
       oscillator.stop(start + .34);
     }
@@ -344,38 +353,40 @@
     function playBirds(now) {
       [[.1,1250,2350],[.55,1420,2800],[1.65,980,2200],[2.05,1100,2550],
        [3.35,1320,2600],[3.75,1550,3100],[4.9,1050,2300],[5.35,1250,2750]]
-        .forEach(([offset, low, high]) => chirp(now + offset, low, high));
+        .forEach(function (call) { chirp(now + call[0], call[1], call[2]); });
     }
 
-    async function toggle(button) {
+    function toggle(button) {
       if (activeButton === button) {
         reset('Sound stopped. Choose another when you are ready.');
         return;
       }
       reset();
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      var AudioContext = window.AudioContext || window.webkitAudioContext;
       if (!AudioContext) {
         status.textContent = 'Your browser does not support generated audio.';
         return;
       }
-      context ||= new AudioContext();
-      await context.resume();
+      if (!context) context = new AudioContext();
+      if (context.state === 'suspended') context.resume();
       activeButton = button;
       button.setAttribute('aria-pressed', 'true');
-      const sound = button.dataset.sound;
-      const now = context.currentTime + .04;
+      var sound = button.getAttribute('data-sound');
+      var now = context.currentTime + .04;
       if (sound === 'tide') playTide(now);
       if (sound === 'breeze') playBreeze(now);
       if (sound === 'birds') playBirds(now);
-      status.textContent = `Playing ${labels[sound]}. Click the button again to stop.`;
-      finishTimer = setTimeout(() => reset('Sound finished. Choose another to listen again.'), 6500);
+      status.textContent = 'Playing ' + labels[sound] + '. Click the button again to stop.';
+      finishTimer = setTimeout(function () { reset('Sound finished. Choose another to listen again.'); }, 6500);
     }
 
-    buttons.forEach(button => button.addEventListener('click', () => toggle(button)));
-    document.addEventListener('keydown', event => {
+    buttons.forEach(function (button) {
+      button.addEventListener('click', function () { toggle(button); });
+    });
+    document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape' && activeButton) reset('Sound stopped.');
     });
-  })();
+  }());
 </script>
 </body>
 </html>
